@@ -3,6 +3,11 @@ variable "project_name" {
   description = "The name of the project"
 }
 
+variable "environment" {
+  type        = string
+  description = "The environment of the project (e.g., dev, staging, prod)"
+}
+
 variable "region" {
   type        = string
   description = "The region of the project"
