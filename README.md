@@ -6,15 +6,25 @@ Fancia is a social platform connecting people with shared interests for offline,
 
 This repository contains Terraform code to provision an AWS-based CI/CD pipeline for managing infrastructure and Helm deployments for the project [fancia-infra](https://github.com/fungkinchun/fancia-infra)
 
+### Prerequisites
+
+- AWS CLI installed and configured for the target account and profile
+
 ### Quick start
 
-1. Initialize Terraform state (adjust backend bucket name as needed):
+1. Define the profile to be used for deployment:
+
+   ```bash
+   export AWS_PROFILE=<your-aws-profile>
+   ```
+
+2. Initialize Terraform state (adjust backend bucket name as needed):
 
    ```bash
    terraform init -backend-config="bucket=${PROJECT_NAME}-infra-pipeline-terraform-state"
    ```
 
-2. Plan and apply the infrastructure:
+3. Plan and apply the infrastructure:
 
    ```bash
    terraform plan
