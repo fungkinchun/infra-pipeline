@@ -9,13 +9,15 @@ This repository contains Terraform code to provision an AWS-based CI/CD pipeline
 ### Prerequisites
 
 - AWS CLI installed and configured for the target account and profile
+- Terraform installed
 
-### Quick start
+### Quick start (local deployment)
 
-1. Define the profile to be used for deployment:
+1. Define the profile and project name to be used for deployment:
 
    ```bash
    export AWS_PROFILE=<your-aws-profile>
+   export PROJECT_NAME=<your-project-name>
    ```
 
 2. Initialize Terraform state (adjust backend bucket name as needed):
@@ -35,4 +37,4 @@ This repository contains Terraform code to provision an AWS-based CI/CD pipeline
 
 - This pipeline passes values to [fancia-infra](https://github.com/fungkinchun/fancia-infra), which includes credentials for services such as [fancia-user](https://github.com/fungkinchun/fancia-backend-user).
 - Update variables in `terraform.tfvars` (project_name, region, profile, GitHub connection details, and infra_credentials) before applying. Create a local `terraform.tfvars` file if it does not exist and ensure it is not checked into version control.
-- Buildspec files referenced by CodeBuild projects (`buildspec_plan.yaml`, `buildspec_apply.yaml`, `buildspec_destroy.yaml`, `buildspec_helm.yaml`) must exist in the repository.
+- Ensure buildspec files referenced by CodeBuild projects (`buildspec_plan.yaml`, `buildspec_apply.yaml`, `buildspec_destroy.yaml`, `buildspec_helm.yaml`) are present in the repository.
