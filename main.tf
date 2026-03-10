@@ -79,17 +79,6 @@ resource "aws_s3_bucket_versioning" "pipeline_artifact_versioning" {
   }
 }
 
-resource "aws_dynamodb_table" "terraform_lock" {
-  name         = "${local.full_project_name}-terraform-lock-table"
-  billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "LockID"
-
-  attribute {
-    name = "LockID"
-    type = "S"
-  }
-}
-
 resource "aws_codestarconnections_connection" "github" {
   name          = "github-connection"
   provider_type = "GitHub"
@@ -138,7 +127,12 @@ resource "aws_codebuild_project" "codebuild_project_plan" {
 
     environment_variable {
       name  = "TF_VERSION"
-      value = "1.14.6"
+      value = var.tf_version
+    }
+
+    environment_variable {
+      name  = "PROJECT_NAME"
+      value = var.project_name
     }
 
     environment_variable {
@@ -169,7 +163,12 @@ resource "aws_codebuild_project" "codebuild_project_apply" {
 
     environment_variable {
       name  = "TF_VERSION"
-      value = "1.14.6"
+      value = var.tf_version
+    }
+
+    environment_variable {
+      name  = "PROJECT_NAME"
+      value = var.project_name
     }
   }
 
@@ -195,7 +194,12 @@ resource "aws_codebuild_project" "codebuild_project_destroy" {
 
     environment_variable {
       name  = "TF_VERSION"
-      value = "1.14.6"
+      value = var.tf_version
+    }
+
+    environment_variable {
+      name  = "PROJECT_NAME"
+      value = var.project_name
     }
 
     environment_variable {

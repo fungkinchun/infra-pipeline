@@ -9,10 +9,9 @@ terraform {
   }
 
   backend "s3" {
-    bucket       = "fancia-infra-terraform-state"
-    key          = "fancia-infra/terraform.tfstate"
+    bucket       = "fancia-infra-pipeline-terraform-state"
+    key          = "terraform.tfstate"
     region       = "eu-west-2"
-    profile      = "AdministratorAccess-562676253586"
     encrypt      = true
     use_lockfile = true
   }
