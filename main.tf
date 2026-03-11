@@ -214,8 +214,8 @@ resource "aws_codebuild_project" "codebuild_project_destroy" {
   }
 }
 
-resource "aws_codebuild_project" "codebuild_project_helm_deploy" {
-  name         = "${local.full_project_name}-helm-deploy"
+resource "aws_codebuild_project" "codebuild_project_helm_install" {
+  name         = "${local.full_project_name}-helm-install"
   service_role = aws_iam_role.codebuild_role.arn
 
   artifacts {
@@ -251,11 +251,52 @@ resource "aws_codebuild_project" "codebuild_project_helm_deploy" {
 
   source {
     type      = "CODEPIPELINE"
-    buildspec = "buildspec_helm.yaml"
+    buildspec = "buildspec_helm_install.yaml"
   }
 }
 
-resource "aws_codepipeline" "terraform_pipeline" {
+resource "aws_codebuild_project" "codebuild_project_helm_uninstall" {
+  name         = "${local.full_project_name}-helm-uninstall"
+  service_role = aws_iam_role.codebuild_role.arn
+
+  artifacts {
+    type = "CODEPIPELINE"
+  }
+
+  environment {
+    compute_type    = "BUILD_GENERAL1_SMALL"
+    image           = "aws/codebuild/standard:5.0"
+    type            = "LINUX_CONTAINER"
+    privileged_mode = false
+
+    environment_variable {
+      name  = "EKS_CLUSTER_NAME"
+      value = "${var.project_name}-${var.environment}-eks"
+    }
+
+    environment_variable {
+      name  = "PROJECT_NAME"
+      value = var.project_name
+    }
+
+    environment_variable {
+      name  = "ENVIRONMENT"
+      value = var.environment
+    }
+
+    environment_variable {
+      name  = "AWS_ACCOUNT_ID"
+      value = data.aws_caller_identity.current.account_id
+    }
+  }
+
+  source {
+    type      = "CODEPIPELINE"
+    buildspec = "buildspec_helm_uninstall.yaml"
+  }
+
+}
+resource "aws_codepipeline" "apply_pipeline" {
   name     = "${local.full_project_name}-pipeline"
   role_arn = aws_iam_role.codebuild_role.arn
 
@@ -347,13 +388,11 @@ resource "aws_codepipeline" "terraform_pipeline" {
     }
   }
 
-
-
   stage {
-    name = "Helm_Deploy"
+    name = "Helm_Install"
 
     action {
-      name            = "Helm_Deploy"
+      name            = "Helm_Install"
       category        = "Build"
       owner           = "AWS"
       provider        = "CodeBuild"
@@ -361,7 +400,7 @@ resource "aws_codepipeline" "terraform_pipeline" {
       version         = "1"
 
       configuration = {
-        ProjectName   = "${local.full_project_name}-helm-deploy"
+        ProjectName   = "${local.full_project_name}-helm-install"
         PrimarySource = "helm_output"
       }
     }
@@ -394,6 +433,21 @@ resource "aws_codepipeline" "destroy_pipeline" {
         BranchName       = "main"
       }
     }
+
+    action {
+      name             = "Helm_Source"
+      category         = "Source"
+      owner            = "AWS"
+      provider         = "CodeStarSourceConnection"
+      version          = "1"
+      output_artifacts = ["helm_output"]
+
+      configuration = {
+        ConnectionArn    = aws_codestarconnections_connection.github.arn
+        FullRepositoryId = "${var.github_username}/${var.project_name}-helm"
+        BranchName       = "main"
+      }
+    }
   }
 
   stage {
@@ -405,6 +459,23 @@ resource "aws_codepipeline" "destroy_pipeline" {
       owner    = "AWS"
       provider = "Manual"
       version  = "1"
+    }
+  }
+
+  stage {
+    name = "Helm_Uninstall"
+
+    action {
+      name            = "Helm_Uninstall"
+      category        = "Build"
+      owner           = "AWS"
+      provider        = "CodeBuild"
+      input_artifacts = ["helm_output"]
+      version         = "1"
+
+      configuration = {
+        ProjectName = "${local.full_project_name}-helm-uninstall"
+      }
     }
   }
 
