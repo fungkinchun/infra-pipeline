@@ -96,9 +96,9 @@ resource "aws_secretsmanager_secret" "infra_credentials" {
   }
 }
 
-resource "aws_secretsmanager_secret_version" "s3_credentials_version" {
+resource "aws_secretsmanager_secret_version" "infra_credentials_version" {
   secret_id     = aws_secretsmanager_secret.infra_credentials.id
-  secret_string = jsonencode(var.infra_credentials)
+  secret_string = jsonencode(merge(var.infra_credentials, { _last_apply = timestamp() }))
 }
 
 resource "aws_iam_role" "codebuild_role" {

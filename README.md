@@ -38,3 +38,4 @@ This repository contains Terraform code to provision an AWS-based CI/CD pipeline
 - This pipeline passes values to [fancia-infra](https://github.com/fungkinchun/fancia-infra), which includes credentials for services such as [fancia-user](https://github.com/fungkinchun/fancia-backend-user).
 - Update variables in `terraform.tfvars` (project_name, region, profile, GitHub connection details, and infra_credentials) before applying. Create a local `terraform.tfvars` file if it does not exist and ensure it is not checked into version control.
 - Ensure buildspec files referenced by CodeBuild projects (`buildspec_plan.yaml`, `buildspec_apply.yaml`, `buildspec_destroy.yaml`, `buildspec_helm.yaml`) are present in the repository.
+- When updating `infra_credentials`, update the corresponding type definitions in `variables.tf`.

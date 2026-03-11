@@ -38,6 +38,7 @@ variable "infra_credentials" {
   description = "Central map of infrastructure credentials and configuration"
   type = object({
     project_name    = string
+    domain_name     = string
     region          = string
     profile         = string
     github_username = string
