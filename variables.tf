@@ -43,20 +43,15 @@ variable "infra_credentials" {
     profile         = string
     github_username = string
     github_token    = string
+    repo_names      = list(string)
 
-    repo_names = list(string)
-
-    s3_credentials = object({
-      BUCKET_ACCESS_KEY = string
-      BUCKET_SECRET_KEY = string
-      REGION            = string
-      BUCKET_NAME       = string
-      BUCKET_ENDPOINT   = string
-    })
-
-    smtp_credentials = object({
-      SMTP_USERNAME = string
-      SMTP_PASSWORD = string
-    })
+    credentials = list(object({
+      name = string
+      objects = list(object({
+        environment = string
+        description = string
+        value       = map(string)
+      }))
+    }))
   })
 }
